@@ -4,6 +4,9 @@ This is a small utility for TrueNAS SCALE 24.10 (Electric Eel) which configures 
 
 It's a stop-gap until inter-app networking is [properly implemented in Fangtooth](https://forums.truenas.com/t/inter-app-communication-in-24-10-electric-eel/22054).
 
+> [!WARNING]  
+> Dragonify introduces functionality that is unsupported by iXsystems. If you are having problems with your TrueNAS installation or its apps, please try stopping Dragonify and restarting all apps to see if the problem persists.
+
 ## Installation
 
 1. Go to "Apps" in the TrueNAS SCALE web UI.
