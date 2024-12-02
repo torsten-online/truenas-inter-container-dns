@@ -28,6 +28,11 @@ function getDnsName(container: Docker.ContainerInfo) {
 }
 
 async function connectContainerToAppsNetwork(docker: Docker, container: Docker.ContainerInfo) {
+  if ([ "default", "bridge" ].includes(container.HostConfig.NetworkMode)) {
+    console.log(`Container ${container.Id} is not using bridge network; not connecting`)
+    return
+  }
+
   const network = docker.getNetwork(NETWORK_NAME)
   const dnsName = getDnsName(container)
 
