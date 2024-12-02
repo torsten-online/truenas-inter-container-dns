@@ -1,0 +1,26 @@
+{
+  "name": "dragonify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/dockerode": "^3.3.32",
+    "@types/stream-json": "^1.7.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "dockerode": "^4.0.2",
+    "stream-chain": "^3.3.2",
+    "stream-json": "^1.9.1"
+  }
+}
