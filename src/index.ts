@@ -1,14 +1,15 @@
 import Docker from "dockerode"
 import { getEventStream } from "./docker-events"
+import { logger } from "./logger"
 
 const NETWORK_NAME = "apps-internal"
 
 async function setUpNetwork(docker: Docker) {
-  console.log(`Setting up network ${NETWORK_NAME}`)
+  logger.info(`Setting up network ${NETWORK_NAME}`)
 
   const existingNetworks = await docker.listNetworks({filters: {name: [NETWORK_NAME]}})
   if (existingNetworks.length === 1) {
-    console.log("Network already exists")
+    logger.info("Network already exists")
     return
   }
 
@@ -18,7 +19,7 @@ async function setUpNetwork(docker: Docker) {
     Internal: true,
   })
 
-  console.log("Network created")
+  logger.info("Network created")
 }
 
 function getDnsName(container: Docker.ContainerInfo) {
@@ -29,14 +30,14 @@ function getDnsName(container: Docker.ContainerInfo) {
 
 async function connectContainerToAppsNetwork(docker: Docker, container: Docker.ContainerInfo) {
   if ([ "none", "host" ].includes(container.HostConfig.NetworkMode)) {
-    console.log(`Container ${container.Id} is using network mode ${container.HostConfig.NetworkMode}, skipping`)
+    logger.debug(`Container ${container.Id} is using network mode ${container.HostConfig.NetworkMode}, skipping`)
     return
   }
 
   const network = docker.getNetwork(NETWORK_NAME)
   const dnsName = getDnsName(container)
 
-  console.log(`Connecting container ${container.Id} to network as ${dnsName}`)
+  logger.debug(`Connecting container ${container.Id} to network as ${dnsName}`)
 
   await network.connect({
     Container: container.Id,
@@ -45,7 +46,7 @@ async function connectContainerToAppsNetwork(docker: Docker, container: Docker.C
     }
   })
 
-  console.log("Container connected to network")
+  logger.info("Container connected to network")
 }
 
 function isContainerInNetwork(container: Docker.ContainerInfo) {
@@ -61,7 +62,7 @@ function isIxAppContainer(container: Docker.ContainerInfo) {
 }
 
 async function connectAllContainersToAppsNetwork(docker: Docker) {
-  console.log("Connecting existing app containers to network")
+  logger.debug("Connecting existing app containers to network")
 
   const containers = await docker.listContainers({
     limit: -1,
@@ -73,13 +74,14 @@ async function connectAllContainersToAppsNetwork(docker: Docker) {
   const appContainers = containers.filter(isIxAppContainer)
   for (const container of appContainers) {
     if (isContainerInNetwork(container)) {
+      logger.debug(`Container ${container.Id} already connected to network`)
       continue
     }
 
     await connectContainerToAppsNetwork(docker, container)
   }
 
-  console.log("All existing app containers connected to network")
+  logger.info("All existing app containers connected to network")
 }
 
 async function connectNewContainerToAppsNetwork(docker: Docker, containerId: string) {
@@ -90,15 +92,16 @@ async function connectNewContainerToAppsNetwork(docker: Docker, containerId: str
   })
 
   if (!container) {
-    console.warn(`Container ${containerId} not found`)
+    logger.warn(`Container ${containerId} not found`)
     return
   }
 
   if (isContainerInNetwork(container)) {
+    logger.debug(`Container ${container.Id} already connected to network`)
     return
   }
 
-  console.log(`New container started: ${container.Id}`)
+  logger.debug(`New container started: ${container.Id}`)
   await connectContainerToAppsNetwork(docker, container)
 }
 

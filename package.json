@@ -21,6 +21,7 @@
   "dependencies": {
     "dockerode": "^4.0.2",
     "stream-chain": "^3.3.2",
-    "stream-json": "^1.9.1"
+    "stream-json": "^1.9.1",
+    "winston": "^3.17.0"
   }
 }
