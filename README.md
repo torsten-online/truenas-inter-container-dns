@@ -19,6 +19,8 @@ services:
   dragonify:
     image: ghcr.io/tjhorner/dragonify:main
     restart: always
+    environment:
+      LOG_LEVEL: info # change to debug for more verbose logging
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
