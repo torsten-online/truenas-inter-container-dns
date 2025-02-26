@@ -28,8 +28,14 @@ function getDnsName(container: Docker.ContainerInfo) {
   return `${service}.${project}.svc.cluster.local`
 }
 
+function prohibitedNetworkMode(networkMode: string) {
+  return [ "none", "host" ].includes(networkMode) ||
+    networkMode.startsWith("container:") ||
+    networkMode.startsWith("service:")
+}
+
 async function connectContainerToAppsNetwork(docker: Docker, container: Docker.ContainerInfo) {
-  if (container.HostConfig.NetworkMode !== "bridge") {
+  if (prohibitedNetworkMode(container.HostConfig.NetworkMode)) {
     logger.debug(`Container ${container.Id} is using network mode ${container.HostConfig.NetworkMode}, skipping`)
     return
   }
