@@ -29,7 +29,7 @@ function getDnsName(container: Docker.ContainerInfo) {
 }
 
 async function connectContainerToAppsNetwork(docker: Docker, container: Docker.ContainerInfo) {
-  if ([ "none", "host" ].includes(container.HostConfig.NetworkMode)) {
+  if (container.HostConfig.NetworkMode !== "bridge") {
     logger.debug(`Container ${container.Id} is using network mode ${container.HostConfig.NetworkMode}, skipping`)
     return
   }
@@ -39,14 +39,19 @@ async function connectContainerToAppsNetwork(docker: Docker, container: Docker.C
 
   logger.debug(`Connecting container ${container.Id} to network as ${dnsName}`)
 
-  await network.connect({
-    Container: container.Id,
-    EndpointConfig: {
-      Aliases: [ dnsName ]
-    }
-  })
+  try {
+    await network.connect({
+      Container: container.Id,
+      EndpointConfig: {
+        Aliases: [ dnsName ]
+      }
+    })
+  } catch (e: any) {
+    logger.error(`Failed to connect container ${container.Id} to network:`, e)
+    return
+  }
 
-  logger.info("Container connected to network")
+  logger.info(`Container ${container.Id} (aka ${container.Names.join(", ")}) connected to network as ${dnsName}`)
 }
 
 function isContainerInNetwork(container: Docker.ContainerInfo) {
