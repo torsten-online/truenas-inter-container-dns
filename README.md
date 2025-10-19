@@ -1,3 +1,18 @@
+# TruenNAS Scale Fangtooth 25.04
+
+This workaround works also for TrueNAS Scale Fangtooth - if you dont want expose e.g. your postgres DB externally, you should enable inter-container communication with this workaround.
+
+After this Container is running, it will add the internal network and DNS Settings. Please restart your internal container also after this Service is running.
+
+Your Containers will be reachable over inter-container network, e.g. over Hostname ix-postgres-postgres-1
+
+If you want get your container DNS Names and networks, please simply run this command:
+
+````bash
+docker ps --format "table {{.Names}}\t{{.ID}}\t{{.Networks}}"
+````
+*Important: Please note: Dont configure manually over console any docker setting, this is not recommended*
+
 # Dragonify
 
 This is a small utility for TrueNAS SCALE 24.10 (Electric Eel) which configures the Docker networking for TrueNAS-managed apps to allow them to communicate with each other, as was in 24.04 (Dragonfish). It will also add a DNS alias in the format `{service}.ix-{app-name}.svc.cluster.local` for each service to ensure backward-compatibility with the old Kubernetes-based apps system.
